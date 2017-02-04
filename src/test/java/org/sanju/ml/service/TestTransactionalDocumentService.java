@@ -1,5 +1,6 @@
 package org.sanju.ml.service;
 
+import org.apache.http.HttpEntity;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -10,6 +11,9 @@ import org.sanju.ml.dto.Payload;
 import org.sanju.ml.dto.QuoteRequest;
 import org.sanju.ml.transaction.rest.MLTransactionManager;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  * 
  * @author Sanju Thomas
@@ -17,6 +21,7 @@ import org.sanju.ml.transaction.rest.MLTransactionManager;
  */
 public class TestTransactionalDocumentService {
 
+	private static final ObjectMapper MAPPER = new ObjectMapper();
 
 	private TransactionalDocumentSevice tranactionalDocumentService;
 	private DocumentService documentService;
@@ -33,7 +38,7 @@ public class TestTransactionalDocumentService {
 
 	@After
 	public void tearDown() throws Exception{
-	
+		Assert.assertEquals(204, this.documentService.delete("/C1/A1/Q1.json"));
 	}
 
 	@Test
@@ -42,10 +47,30 @@ public class TestTransactionalDocumentService {
 		final String transactionId = MLTransactionManager.begin();
 		int code = this.tranactionalDocumentService.save(this.payload, transactionId);
 		Assert.assertEquals(201, code);
-		Assert.assertNull(this.documentService.get("/C1/A1/Q1.json"));
+		HttpEntity entity = (HttpEntity) this.documentService.get("/C1/A1/Q1.json");
+		JsonNode jsonNode = MAPPER.readTree(entity.getContent());
+		Assert.assertEquals(404, jsonNode.get("errorResponse").get("statusCode").intValue());
 		MLTransactionManager.commit(transactionId);
 		
+		entity = (HttpEntity) this.documentService.get("/C1/A1/Q1.json");
+		jsonNode = MAPPER.readTree(entity.getContent());
+		Assert.assertEquals("Q1", jsonNode.get("id").textValue());
 	}
-
+	
+	@Test
+	public void shouldRollback() throws Exception{
+		
+		final String transactionId = MLTransactionManager.begin();
+		int code = this.tranactionalDocumentService.save(this.payload, transactionId);
+		Assert.assertEquals(201, code);
+		HttpEntity entity = (HttpEntity) this.documentService.get("/C1/A1/Q1.json");
+		JsonNode jsonNode = MAPPER.readTree(entity.getContent());
+		Assert.assertEquals(404, jsonNode.get("errorResponse").get("statusCode").intValue());
+		MLTransactionManager.rollback(transactionId);
+		
+		entity = (HttpEntity) this.documentService.get("/C1/A1/Q1.json");
+		jsonNode = MAPPER.readTree(entity.getContent());
+		Assert.assertEquals(404, jsonNode.get("errorResponse").get("statusCode").intValue());
+	}
 
 }
