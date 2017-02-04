@@ -1,8 +1,8 @@
 # MarkLogic transaction over REST
 
-Demo project to demonstrate the MarkLogic transaction over REST
+Demo project to demonstrate the MarkLogic transaction over REST.
 
-Covered REST endpoints - 
+Following REST endpoints are covered.
 
 https://docs.marklogic.com/REST/POST/v1/transactions
 
