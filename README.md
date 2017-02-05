@@ -15,3 +15,6 @@ https://docs.marklogic.com/REST/PUT/v1/documents
 https://docs.marklogic.com/REST/GET/v1/documents
 
 https://docs.marklogic.com/REST/DELETE/v1/documents
+
+## Transaction Management Sequence 
+![MarkLogic transaction over REST](seq.png)
