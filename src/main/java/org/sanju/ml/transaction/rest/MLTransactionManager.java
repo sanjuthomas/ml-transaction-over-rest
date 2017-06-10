@@ -125,7 +125,7 @@ public class MLTransactionManager {
 		final HttpPost request = buildRequest(transactionId, params);
 		final HttpResponse response = RequestProcessor.process(request);
 		if(204 != response.getStatusLine().getStatusCode()){
-			throw new Exception("Failed to rollback  the transcation. Please check MarkLogic server error log for more details.");
+			throw new Exception("Failed to rollback the transcation. Please check MarkLogic server error log for more details.");
 		}
 	}
 
